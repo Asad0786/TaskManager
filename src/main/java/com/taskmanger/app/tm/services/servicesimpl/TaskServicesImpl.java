@@ -46,11 +46,11 @@ public class TaskServicesImpl implements TaskServices {
     @Transactional
     public TaskDto addNewTask(TaskDto taskDto) {
 
-        User authenticatedUser = entityManager.merge(getAuthenticatedUser());
+        User loggedUser = entityManager.merge(getAuthenticatedUser());
         Task task = new Task();
         task.setTitle(taskDto.getTitle());
         task.setDescription(taskDto.getDescription());
-        task.setUser(authenticatedUser);
+        task.setUser(loggedUser);
         task = taskRepository.save(task);
         return  mapToTaskDto(task);
 
@@ -62,6 +62,23 @@ public class TaskServicesImpl implements TaskServices {
 
         List<Task> tasks = taskRepository.findByUser(entityManager.merge(getAuthenticatedUser()));
         return tasks.stream().map(task -> mapToTaskDto(task)).collect(Collectors.toList());
+
+    }
+
+    @Override
+    @Transactional
+    public boolean toggleCompletion(long id) {
+
+        User loggedUser = entityManager.merge(getAuthenticatedUser());
+        Task task = taskRepository.findById(id).orElseThrow(
+                () -> new RuntimeException("Task doesn't exists")
+        );
+        if (!task.getUser().equals(loggedUser))
+            throw new RuntimeException("Bad Request");
+        task.setComplete(!task.isComplete());
+        taskRepository.save(task);
+        return task.isComplete();
+
 
     }
 

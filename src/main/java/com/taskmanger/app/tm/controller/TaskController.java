@@ -1,7 +1,6 @@
 package com.taskmanger.app.tm.controller;
 
 
-import com.taskmanger.app.tm.entity.Task;
 import com.taskmanger.app.tm.payload.TaskDto;
 import com.taskmanger.app.tm.services.TaskServices;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +28,13 @@ public class TaskController {
     @GetMapping("")
     public ResponseEntity<List<?>> viewAllTasks(){
         return ResponseEntity.ok(taskServices.viewTask());
+    }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<?> changeTaskCompletion(@PathVariable("id") long id) {
+
+        return ResponseEntity.ok(taskServices.toggleCompletion(id));
+
     }
 
 
